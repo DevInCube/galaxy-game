@@ -1,23 +1,43 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<meta charset="utf-8" />
-<title>pixi-typescript-template</title>
+    <meta charset="utf-8" />
+    <title>pixi-typescript-template</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.19/system.js"></script>
-<script src="./system.config.js"></script>
-<script src="./app.js"></script>
-<script>
-    window.onload = () => {
-        System
-            .import('main')
-            .then(null, console.error.bind(console));
-    };
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.19/system.js"></script>
+    <script src="./system.config.js"></script>
+    <script src="./app.js"></script>
+    <script>
+        window.onload = () => {
+            System
+                .import('main')
+                .then(null, console.error.bind(console));
+        };
+    </script>
+    <style>
+        canvas {
+            display: block;
+        }
+
+        #frame {
+            /* Necessary to make sure frame width/height
+            isn't set according to the canvas element */
+            position: absolute;
+            overflow: hidden;
+
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 
 </head>
-<body>
 
+<body>
+    <div id="frame"></div>
 </body>
+
 </html>

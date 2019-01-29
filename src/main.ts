@@ -6,18 +6,34 @@ console.log(`import ${ok()}`);
 const width = 256;
 const height = 256;
 
-const renderer = PIXI.autoDetectRenderer(width, height);
-document.body.appendChild(renderer.view);
+const app = new PIXI.Application({
+    autoResize: true,
+    resolution: devicePixelRatio,
+});
+document.querySelector('#frame').appendChild(app.view);
 
 const stage = new PIXI.Container();
 
-
-
 const g = new PIXI.Graphics();
-g.beginFill(0x00ff00);
-g.lineStyle(0);
-g.drawCircle(0, 0, 10);
-g.endFill();
+
+// Listen for window resize events
+window.addEventListener('resize', resize);
+
+// Resize function window
+function resize() {
+
+    // Get the p
+    const parent = app.view.parentNode as HTMLElement;
+
+    // Resize the renderer
+    app.renderer.resize(parent.clientWidth, parent.clientHeight);
+
+    // You can use the 'screen' property as the renderer visible
+    // area, this is more useful than view.width/height because
+    // it handles resolution
+    g.position.set(app.screen.width, app.screen.height);
+}
+resize();
 
 const ball = {
     velocity: {
@@ -66,7 +82,7 @@ function render(timestamp: number) {
     ball.sprite.x = ball.position.x;
     ball.sprite.y = ball.position.y;
 
-    renderer.render(stage);
+    app.renderer.render(stage);
     requestAnimationFrame(render);
 }
 
