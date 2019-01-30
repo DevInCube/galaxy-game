@@ -28,6 +28,32 @@ window.addEventListener('resize', resize);
 let width = 256;
 let height = 256;
 
+window.addEventListener('wheel', onScroll);
+
+let scale = 0.5;
+
+function onScroll(e: WheelEvent) {
+    scale += e.deltaY / 10;
+    if (scale < 0.1) {
+        scale = 0.1;
+    }
+}
+
+// create a text object that will be updated...
+var countingText = new PIXI.Text('', { 
+    // font: 'bold italic 60px Arvo', 
+    fill: 'yellow', 
+    align: 'center', 
+    stroke: '#a4410e', 
+    strokeThickness: 1 
+});
+
+countingText.position.x = 5;
+countingText.position.y = 5;
+countingText.anchor.x = 0.0;
+
+stage.addChild(countingText);
+
 // Resize function window
 function resize() {
 
@@ -72,21 +98,23 @@ for (let i = 0; i < 5; i++) {
 }
 
 function createPl() {
-    const distance = Math.random() * 250 + 50;
-    const speed = Math.random() - 0.5;
+    const maxDist = 200;
+    const distance = Math.random() * (maxDist - 50) + 50;
+    const size = Math.sin(distance / maxDist * Math.PI) * 10 + 3;
+    const speed = maxDist / distance;
     const pl = {
         position: {
             x: 0,
             y: 0
         },
         distance: distance,
-        speed: speed + (speed / Math.abs(speed)) * 0.3,
+        speed: speed,
         startAngle: Math.random() * 2 * Math.PI,
+        angle: 0,
         sprite: (() => {
             const g = new PIXI.Graphics();
             g.beginFill(0x00ffff);
             g.lineStyle(0);
-            const size = Math.random() * 15 + 5;
             g.drawCircle(size, size, size);
             g.endFill();
             const sprite = new PIXI.Sprite(g.generateCanvasTexture());
@@ -105,8 +133,7 @@ function update() {
     ball.position.y = height / 2;
 
     for (const pl of pls) {
-        pl.position.x = ball.position.x + pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
-        pl.position.y = ball.position.y + pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
+        pl.angle = pl.startAngle + pl.speed * t / 1000;
     }
 
     if (mode === 1) {
@@ -118,12 +145,19 @@ function update() {
 }
 
 function render(timestamp: number) {
+    countingText.text = `scale: ${scale.toFixed(1)}` + ((mode === 1) ? " [paused]" : "");
+    //
+    ball.sprite.scale.x = scale;
+    ball.sprite.scale.y = scale;
     ball.sprite.x = ball.position.x;
     ball.sprite.y = ball.position.y;
 
     for (const pl of pls) {
-        pl.sprite.x = pl.position.x;
-        pl.sprite.y = pl.position.y;
+        pl.sprite.scale.x = scale;
+        pl.sprite.scale.y = scale;
+        //
+        pl.sprite.x = ball.position.x + scale * pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
+        pl.sprite.y = ball.position.y + scale * pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
     }
 
     app.renderer.render(stage);

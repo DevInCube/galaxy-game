@@ -11,11 +11,17 @@ System.register("import-example", [], function (exports_1, context_1) {
     };
 });
 System.register("main", ["pixi.js", "import-example"], function (exports_2, context_2) {
-    var PIXI, import_example_1, app, stage, mode, width, height, g, ball, pls, t;
+    var PIXI, import_example_1, app, stage, mode, width, height, scale, countingText, g, ball, pls, t;
     var __moduleName = context_2 && context_2.id;
     function onKeyDown(key) {
         if (key.keyCode === 32) {
             mode = mode === 0 ? 1 : 0;
+        }
+    }
+    function onScroll(e) {
+        scale += e.deltaY / 10;
+        if (scale < 0.1) {
+            scale = 0.1;
         }
     }
     // Resize function window
@@ -32,21 +38,23 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         height = app.screen.height;
     }
     function createPl() {
-        var distance = Math.random() * 250 + 50;
-        var speed = Math.random() - 0.5;
+        var maxDist = 200;
+        var distance = Math.random() * (maxDist - 50) + 50;
+        var size = Math.sin(distance / maxDist * Math.PI) * 10 + 3;
+        var speed = maxDist / distance;
         var pl = {
             position: {
                 x: 0,
                 y: 0
             },
             distance: distance,
-            speed: speed + (speed / Math.abs(speed)) * 0.3,
+            speed: speed,
             startAngle: Math.random() * 2 * Math.PI,
+            angle: 0,
             sprite: (function () {
                 var g = new PIXI.Graphics();
                 g.beginFill(0x00ffff);
                 g.lineStyle(0);
-                var size = Math.random() * 15 + 5;
                 g.drawCircle(size, size, size);
                 g.endFill();
                 var sprite = new PIXI.Sprite(g.generateCanvasTexture());
@@ -62,8 +70,7 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         ball.position.y = height / 2;
         for (var _i = 0, pls_1 = pls; _i < pls_1.length; _i++) {
             var pl = pls_1[_i];
-            pl.position.x = ball.position.x + pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
-            pl.position.y = ball.position.y + pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
+            pl.angle = pl.startAngle + pl.speed * t / 1000;
         }
         if (mode === 1) {
             // global tiem
@@ -72,12 +79,19 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         setTimeout(update, 10); // 100 UPS
     }
     function render(timestamp) {
+        countingText.text = "scale: " + scale.toFixed(1) + ((mode === 1) ? " [paused]" : "");
+        //
+        ball.sprite.scale.x = scale;
+        ball.sprite.scale.y = scale;
         ball.sprite.x = ball.position.x;
         ball.sprite.y = ball.position.y;
         for (var _i = 0, pls_2 = pls; _i < pls_2.length; _i++) {
             var pl = pls_2[_i];
-            pl.sprite.x = pl.position.x;
-            pl.sprite.y = pl.position.y;
+            pl.sprite.scale.x = scale;
+            pl.sprite.scale.y = scale;
+            //
+            pl.sprite.x = ball.position.x + scale * pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
+            pl.sprite.y = ball.position.y + scale * pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
         }
         app.renderer.render(stage);
         requestAnimationFrame(render);
@@ -106,6 +120,20 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
             window.addEventListener('resize', resize);
             width = 256;
             height = 256;
+            window.addEventListener('wheel', onScroll);
+            scale = 0.5;
+            // create a text object that will be updated...
+            countingText = new PIXI.Text('', {
+                // font: 'bold italic 60px Arvo', 
+                fill: 'yellow',
+                align: 'center',
+                stroke: '#a4410e',
+                strokeThickness: 1
+            });
+            countingText.position.x = 5;
+            countingText.position.y = 5;
+            countingText.anchor.x = 0.0;
+            stage.addChild(countingText);
             resize();
             g = new PIXI.Graphics();
             g.beginFill(0xffff00);
