@@ -36,10 +36,10 @@ let height = 256;
 
 window.addEventListener('wheel', onScroll);
 
-let scale = 0.5;
+let scale = 1;
 
 function onScroll(e: WheelEvent) {
-    const minScale = 0.2;
+    const minScale = 0.3;
     const stepScale = 0.1;
     //
     scale += sign(e.deltaY) * stepScale;
@@ -49,12 +49,12 @@ function onScroll(e: WheelEvent) {
 }
 
 // create a text object that will be updated...
-var countingText = new PIXI.Text('', { 
+var countingText = new PIXI.Text('', {
     // font: 'bold italic 60px Arvo', 
-    fill: 'yellow', 
-    align: 'center', 
-    stroke: '#a4410e', 
-    strokeThickness: 1 
+    fill: 'yellow',
+    align: 'center',
+    stroke: '#a4410e',
+    strokeThickness: 1
 });
 
 countingText.position.x = 5;
@@ -87,6 +87,12 @@ g.beginFill(0xffff00);
 g.lineStyle(0);
 g.drawCircle(10, 10, 10);
 g.endFill();
+
+
+const abs: any[] = [];
+for (let i = 0; i < 1; i++) {
+    abs.push(createAb(250, 20));
+}
 
 const ball = {
     position: {
@@ -135,6 +141,33 @@ function createPl() {
     return pl;
 }
 
+function createAb(distance: number, size: number) {
+    const pl = {
+        distance: distance,
+        sprite: (() => {
+            const g = createTorus(distance - size, distance + size);
+            const sprite = new PIXI.Sprite(g.generateCanvasTexture());
+            sprite.anchor.set(.5, .5);
+            stage.addChild(sprite);
+            return sprite;
+        })()
+    }
+    return pl;
+}
+
+function createTorus(innerSize: number, outerSize: number) {
+    const g = new PIXI.Graphics();
+    g.beginFill(0x00ffff, 0.5);
+    g.lineStyle(0);
+    g.drawCircle(outerSize / 2, outerSize / 2, outerSize);
+    g.endFill();
+    g.beginFill(0x000000, 1);
+    g.lineStyle(0);
+    g.drawCircle(outerSize / 2, outerSize / 2, innerSize);
+    g.endFill();
+    return g;
+}
+
 let t = 0;
 
 function update() {
@@ -168,7 +201,15 @@ function render(timestamp: number) {
         pl.sprite.x = ball.position.x + scale * pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
         pl.sprite.y = ball.position.y + scale * pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
     }
-
+    //
+    for (const ab of abs) {
+        ab.sprite.scale.x = scale;
+        ab.sprite.scale.y = scale;
+        //
+        ab.sprite.x = ball.position.x;
+        ab.sprite.y = ball.position.y;
+    }
+    //
     app.renderer.render(stage);
     requestAnimationFrame(render);
 }

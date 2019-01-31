@@ -11,7 +11,7 @@ System.register("import-example", [], function (exports_1, context_1) {
     };
 });
 System.register("main", ["pixi.js", "import-example"], function (exports_2, context_2) {
-    var PIXI, import_example_1, app, stage, mode, width, height, scale, countingText, g, ball, pls, t;
+    var PIXI, import_example_1, app, stage, mode, width, height, scale, countingText, g, abs, ball, pls, t;
     var __moduleName = context_2 && context_2.id;
     // utils
     function sign(x) {
@@ -23,7 +23,7 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         }
     }
     function onScroll(e) {
-        var minScale = 0.2;
+        var minScale = 0.3;
         var stepScale = 0.1;
         //
         scale += sign(e.deltaY) * stepScale;
@@ -72,6 +72,31 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         };
         return pl;
     }
+    function createAb(distance, size) {
+        var pl = {
+            distance: distance,
+            sprite: (function () {
+                var g = createTorus(distance - size, distance + size);
+                var sprite = new PIXI.Sprite(g.generateCanvasTexture());
+                sprite.anchor.set(.5, .5);
+                stage.addChild(sprite);
+                return sprite;
+            })()
+        };
+        return pl;
+    }
+    function createTorus(innerSize, outerSize) {
+        var g = new PIXI.Graphics();
+        g.beginFill(0x00ffff, 0.5);
+        g.lineStyle(0);
+        g.drawCircle(outerSize / 2, outerSize / 2, outerSize);
+        g.endFill();
+        g.beginFill(0x000000, 1);
+        g.lineStyle(0);
+        g.drawCircle(outerSize / 2, outerSize / 2, innerSize);
+        g.endFill();
+        return g;
+    }
     function update() {
         ball.position.x = width / 2;
         ball.position.y = height / 2;
@@ -100,6 +125,16 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
             pl.sprite.x = ball.position.x + scale * pl.distance * Math.cos(pl.startAngle + pl.speed * t / 1000);
             pl.sprite.y = ball.position.y + scale * pl.distance * Math.sin(pl.startAngle + pl.speed * t / 1000);
         }
+        //
+        for (var _a = 0, abs_1 = abs; _a < abs_1.length; _a++) {
+            var ab = abs_1[_a];
+            ab.sprite.scale.x = scale;
+            ab.sprite.scale.y = scale;
+            //
+            ab.sprite.x = ball.position.x;
+            ab.sprite.y = ball.position.y;
+        }
+        //
         app.renderer.render(stage);
         requestAnimationFrame(render);
     }
@@ -129,7 +164,7 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
             width = 256;
             height = 256;
             window.addEventListener('wheel', onScroll);
-            scale = 0.5;
+            scale = 1;
             // create a text object that will be updated...
             countingText = new PIXI.Text('', {
                 // font: 'bold italic 60px Arvo', 
@@ -148,6 +183,10 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
             g.lineStyle(0);
             g.drawCircle(10, 10, 10);
             g.endFill();
+            abs = [];
+            for (var i = 0; i < 1; i++) {
+                abs.push(createAb(250, 20));
+            }
             ball = {
                 position: {
                     x: 0,
