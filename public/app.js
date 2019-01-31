@@ -13,15 +13,22 @@ System.register("import-example", [], function (exports_1, context_1) {
 System.register("main", ["pixi.js", "import-example"], function (exports_2, context_2) {
     var PIXI, import_example_1, app, stage, mode, width, height, scale, countingText, g, ball, pls, t;
     var __moduleName = context_2 && context_2.id;
+    // utils
+    function sign(x) {
+        return x / Math.abs(x);
+    }
     function onKeyDown(key) {
         if (key.keyCode === 32) {
             mode = mode === 0 ? 1 : 0;
         }
     }
     function onScroll(e) {
-        scale += e.deltaY / 10;
-        if (scale < 0.1) {
-            scale = 0.1;
+        var minScale = 0.2;
+        var stepScale = 0.1;
+        //
+        scale += sign(e.deltaY) * stepScale;
+        if (scale < minScale) {
+            scale = minScale;
         }
     }
     // Resize function window
@@ -79,7 +86,7 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         setTimeout(update, 10); // 100 UPS
     }
     function render(timestamp) {
-        countingText.text = "scale: " + scale.toFixed(1) + ((mode === 1) ? " [paused]" : "");
+        countingText.text = "scale: " + scale.toFixed(1) + ((mode === 0) ? " [paused]" : "");
         //
         ball.sprite.scale.x = scale;
         ball.sprite.scale.y = scale;
@@ -107,6 +114,7 @@ System.register("main", ["pixi.js", "import-example"], function (exports_2, cont
         ],
         execute: function () {
             console.log("import " + import_example_1.ok());
+            //
             app = new PIXI.Application({
                 autoResize: true,
                 resolution: devicePixelRatio

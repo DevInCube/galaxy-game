@@ -3,6 +3,12 @@ import * as PIXI from "pixi.js";
 import { ok } from "./import-example";
 console.log(`import ${ok()}`);
 
+// utils
+function sign(x: number) {
+    return x / Math.abs(x);
+}
+//
+
 const app = new PIXI.Application({
     autoResize: true,
     resolution: devicePixelRatio,
@@ -33,9 +39,12 @@ window.addEventListener('wheel', onScroll);
 let scale = 0.5;
 
 function onScroll(e: WheelEvent) {
-    scale += e.deltaY / 10;
-    if (scale < 0.1) {
-        scale = 0.1;
+    const minScale = 0.2;
+    const stepScale = 0.1;
+    //
+    scale += sign(e.deltaY) * stepScale;
+    if (scale < minScale) {
+        scale = minScale;
     }
 }
 
@@ -145,7 +154,7 @@ function update() {
 }
 
 function render(timestamp: number) {
-    countingText.text = `scale: ${scale.toFixed(1)}` + ((mode === 1) ? " [paused]" : "");
+    countingText.text = `scale: ${scale.toFixed(1)}` + ((mode === 0) ? " [paused]" : "");
     //
     ball.sprite.scale.x = scale;
     ball.sprite.scale.y = scale;
