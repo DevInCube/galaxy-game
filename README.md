@@ -6,4 +6,4 @@ tsc
 npm start
 ```
 
-[Demo](https://ndry.github.io/pixi-typescript-template/public/)
+[Demo](https://DevInCube.github.io/galaxy-game/public/)
